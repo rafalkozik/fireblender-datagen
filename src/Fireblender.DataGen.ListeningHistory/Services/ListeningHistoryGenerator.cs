@@ -7,7 +7,7 @@ namespace Fireblender.DataGen.ListeningHistory.Services
     using Fireblender.DataGen.Common.Interfaces;
     using Fireblender.DataGen.ListeningHistory.Models;
 
-    class ListeningHistoryGenerator : IDataSetGenerator<ListeningHistoryItem>
+    class ListeningHistoryGenerator : IDataGenerator<ListeningHistoryDataPoint>
     {
         private readonly Guid[] users;
         private readonly Guid[] artists;
@@ -24,21 +24,16 @@ namespace Fireblender.DataGen.ListeningHistory.Services
             this.songs = Enumerable.Range(0, nSongs).Select(s => random.NextGuid()).ToArray();
         }
 
-        public IEnumerable<ListeningHistoryItem> Generate(Random random, DateTime date, long count)
+        public IEnumerable<ListeningHistoryDataPoint> Generate(Random random, IEnumerable<DateTime> orderedTimestamps)
         {
-            for (var i = 0; i < count; i++)
+            return orderedTimestamps.Select(timestamp => new ListeningHistoryDataPoint
             {
-                var item = new ListeningHistoryItem
-                {
-                    Id = random.NextGuid(),
-                    UserId = random.Pick(users),
-                    ArtistId = random.Pick(artists),
-                    SongId = random.Pick(songs),
-                    Timestamp = random.NextDateTimeWithinDay(date),
-                };
-
-                yield return item;
-            }
+                Id = random.NextGuid(),
+                UserId = random.Pick(users),
+                ArtistId = random.Pick(artists),
+                SongId = random.Pick(songs),
+                Timestamp = timestamp,
+            });
         }
     }
 }

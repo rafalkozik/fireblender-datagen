@@ -4,6 +4,8 @@
 
     public interface IDataPoint
     {
+        public Guid Id { get; set; }
+
         public DateTime Timestamp { get; }
     }
 }

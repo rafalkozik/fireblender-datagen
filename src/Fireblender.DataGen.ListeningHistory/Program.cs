@@ -5,6 +5,11 @@
     using System.IO.Compression;
     using Newtonsoft.Json;
     using Fireblender.DataGen.ListeningHistory.Services;
+    using Fireblender.DataGen.Common.Services;
+    using Fireblender.DataGen.Common.Enums;
+    using Fireblender.DataGen.Common.Interfaces;
+    using Fireblender.DataGen.Common.Models;
+    using System.Collections.Generic;
 
     class Program
     {
@@ -13,69 +18,113 @@
             // TODO: better args handling, integrate System.CommandLine
             Generate(
                 seed: 1337,
-                dateStart: DateTime.Parse(args[0]),
-                dateEnd: DateTime.Parse(args[1]),
-                nUsers: int.Parse(args[2]),
-                nArtists: int.Parse(args[3]),
-                nSongs: int.Parse(args[4]),
-                nItems: int.Parse(args[5]),
+                minDate: DateTime.Parse(args[0]),
+                maxDate: DateTime.Parse(args[1]),
+                users: int.Parse(args[2]),
+                artists: int.Parse(args[3]),
+                songs: int.Parse(args[4]),
+                size: int.Parse(args[5]),
                 outputDirectory: args[6]
             );
         }
 
         static void Generate(
             int seed,
-            DateTime dateStart,
-            DateTime dateEnd,
-            int nUsers,
-            int nArtists,
-            int nSongs,
-            long nItems,
+            DateTime minDate,
+            DateTime maxDate,
+            int users,
+            int artists,
+            int songs,
+            int size,
             string outputDirectory)
         {
             var random = new Random(seed);
-            var generator = new ListeningHistoryGenerator(random, nUsers, nArtists, nSongs);
+            var dataGenerator = new ListeningHistoryGenerator(random, users, artists, songs);
 
-            // TODO: move code for orchestrating generation into separate service
-            var days = (int)(dateEnd - dateStart).TotalDays + 1;
-            var dailyConfigs = new (int seed, DateTime date, long nItems)[days];
-
-            for (int d = 0; d < days; d++)
+            var config = new DataSetConfiguration
             {
-                dailyConfigs[d] = (random.Next(), dateStart.AddDays(d), 0);
-            }
+                MinDate = minDate,
+                MaxDate = maxDate,
+                Size = size,
+                SizeOverTime = SizeOverTime.Uniform,
+                BufferingIntervalInSeconds = 300,
+                BufferingSizeInMBs = 1,
+            };
 
-            // TODO: different generation patterns (i.e. growing data set, shrinking dataset, use Fireblender.DataGen.Common.Enums.SizeOverTime)
-            for (int i = 0; i < nItems; i++)
+            Generate(random, config, dataGenerator, outputDirectory);
+        }
+
+        // TODO: move implementation to dedicated service class
+        static void Generate<TDataPoint>(
+            Random random,
+            DataSetConfiguration config,
+            IDataGenerator<TDataPoint> dataGenerator,
+            string outputDirectory) where TDataPoint : IDataPoint
+        {
+            var timeSlicer = new TimeSlicer();
+
+            var dataDistribution = timeSlicer.SplitOverTime(
+                random, 
+                config.MinDate,
+                config.MaxDate, 
+                config.Size,
+                config.SizeOverTime);
+            
+            foreach ((var date, var count) in dataDistribution)
             {
-                var d = random.Next() % days;
-                dailyConfigs[d].nItems++;
-            }
+                if (count == 0) continue;
 
-            for (int d = 0; d < days; d++)
-            {
-                var dailyConfig = dailyConfigs[d];
-                var dailyRandom = new Random(dailyConfig.seed);
+                var timestampsRandom = new Random(random.Next());
+                var dataPointsRandom = new Random(random.Next());
 
-                if (dailyConfig.nItems == 0) continue;
+                var orderedTimestamps = timeSlicer.OrderedTimestampsWithinDay(timestampsRandom, date, count);
 
-                foreach (var item in generator.Generate(dailyRandom, dailyConfig.date, dailyConfig.nItems))
+                var buffer = new List<(IDataPoint dataPoint, string serialized)>();
+                var bufferSize = 0;
+
+                void FlushBuffer()
                 {
-                    // TODO: implement batching (size / time)
-                    var timestamp = item.Timestamp;
-                    var fileName = $"{timestamp.Year:00}/{timestamp.Month:00}/{timestamp.Day:00}/{timestamp.Hour:00}/{item.Id}.jsonl.gz";
+                    if (buffer.Count == 0) return;
+
+                    var firstDataPoint = buffer[0].dataPoint;
+                    var timestamp = firstDataPoint.Timestamp;
+                    var fileName = $"{timestamp.Year:00}/{timestamp.Month:00}/{timestamp.Day:00}/{timestamp.Hour:00}/{firstDataPoint.Id}.jsonl.gz";
                     var fullFileName = Path.Join(outputDirectory, fileName);
 
                     Directory.CreateDirectory(Path.GetDirectoryName(fullFileName));
 
-                    var json = JsonConvert.SerializeObject(item);
-
                     using var fileStream = File.Create(fullFileName);
                     using var gzipStream = new GZipStream(fileStream, CompressionMode.Compress, leaveOpen: true);
                     using var streamWriter = new StreamWriter(gzipStream);
-                    
-                    streamWriter.WriteLine(json);
+
+                    foreach ((var _, var json) in buffer)
+                    {
+                        streamWriter.WriteLine(json);
+                    }
+
+                    buffer.Clear();
+                    bufferSize = 0;
                 }
+
+                foreach (var dataPoint in dataGenerator.Generate(dataPointsRandom, orderedTimestamps))
+                {
+                    if (buffer.Count > 0 && (dataPoint.Timestamp - buffer[0].dataPoint.Timestamp).TotalSeconds > config.BufferingIntervalInSeconds)
+                    {
+                        FlushBuffer();
+                    }
+
+                    var json = JsonConvert.SerializeObject(dataPoint);
+
+                    buffer.Add((dataPoint, json));
+                    bufferSize += json.Length;
+
+                    if (bufferSize > config.BufferingSizeInBytes)
+                    {
+                        FlushBuffer();
+                    }
+                }
+
+                FlushBuffer();
             }
         }
     }

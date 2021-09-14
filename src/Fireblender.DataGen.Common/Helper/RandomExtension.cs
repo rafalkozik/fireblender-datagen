@@ -15,12 +15,5 @@
         {
             return items[random.Next(items.Length)];
         }
-
-        public static DateTime NextDateTimeWithinDay(this Random random, DateTime baseDate)
-        {
-            const int secondsInDay = 60 * 60 * 24;
-
-            return baseDate.Date.AddSeconds(random.Next(secondsInDay));
-        }
     }
 }

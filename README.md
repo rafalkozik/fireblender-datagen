@@ -16,8 +16,8 @@ Random dataset of song listening history, example:
 |ed062262-ca44-4ab7-a2e0-9b6da355e9b2|fd31533a-a453-4e7a-9e19-4069dffdcc87|8c799d7b-7d61-42be-9bc2-7c8dbb83bfbc|d9dd2051-8f56-4ee1-98a5-5d0edf794688|2021-08-30T12:38:47Z|
 
 Generator parameters:
-- date-start
-- date-end
+- min-date
+- max-date
 - users
 - artists
 - songs
