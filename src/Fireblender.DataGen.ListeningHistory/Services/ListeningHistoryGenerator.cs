@@ -10,29 +10,37 @@ namespace Fireblender.DataGen.ListeningHistory.Services
     class ListeningHistoryGenerator : IDataGenerator<ListeningHistoryDataPoint>
     {
         private readonly Guid[] users;
-        private readonly Guid[] artists;
-        private readonly Guid[] songs;
+        private readonly (Guid songId, Guid artistId)[] songs;
 
         public ListeningHistoryGenerator(
             Random random,
-            int nUsers,
-            int nArtists,
-            int nSongs)
+            int usersCount,
+            int artistsCount,
+            int songsCount)
         {
-            this.users = Enumerable.Range(0, nUsers).Select(u => random.NextGuid()).ToArray();
-            this.artists = Enumerable.Range(0, nArtists).Select(a => random.NextGuid()).ToArray();
-            this.songs = Enumerable.Range(0, nSongs).Select(s => random.NextGuid()).ToArray();
+            this.users = Enumerable.Range(0, usersCount).Select(u => random.NextGuid()).ToArray();
+
+            var artists = Enumerable.Range(0, artistsCount).Select(a => random.NextGuid()).ToArray();
+
+            this.songs = Enumerable.Range(0, songsCount)
+                .Select(s => (random.NextGuid(), random.Pick(artists)))
+                .ToArray();
         }
 
         public IEnumerable<ListeningHistoryDataPoint> Generate(Random random, IEnumerable<DateTime> orderedTimestamps)
         {
-            return orderedTimestamps.Select(timestamp => new ListeningHistoryDataPoint
+            return orderedTimestamps.Select(timestamp =>
             {
-                Id = random.NextGuid(),
-                UserId = random.Pick(users),
-                ArtistId = random.Pick(artists),
-                SongId = random.Pick(songs),
-                Timestamp = timestamp,
+                var (songId, artistId) = random.Pick(this.songs);
+
+                return new ListeningHistoryDataPoint
+                {
+                    Id = random.NextGuid(),
+                    UserId = random.Pick(users),
+                    ArtistId = artistId,
+                    SongId = songId,
+                    Timestamp = timestamp,
+                };
             });
         }
     }

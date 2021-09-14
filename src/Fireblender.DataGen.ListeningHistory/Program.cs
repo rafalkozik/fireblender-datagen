@@ -20,9 +20,9 @@
                 seed: 1337,
                 minDate: DateTime.Parse(args[0]),
                 maxDate: DateTime.Parse(args[1]),
-                users: int.Parse(args[2]),
-                artists: int.Parse(args[3]),
-                songs: int.Parse(args[4]),
+                usersCount: int.Parse(args[2]),
+                artistsCount: int.Parse(args[3]),
+                songsCount: int.Parse(args[4]),
                 size: int.Parse(args[5]),
                 outputDirectory: args[6]
             );
@@ -32,14 +32,14 @@
             int seed,
             DateTime minDate,
             DateTime maxDate,
-            int users,
-            int artists,
-            int songs,
+            int usersCount,
+            int artistsCount,
+            int songsCount,
             int size,
             string outputDirectory)
         {
             var random = new Random(seed);
-            var dataGenerator = new ListeningHistoryGenerator(random, users, artists, songs);
+            var dataGenerator = new ListeningHistoryGenerator(random, usersCount, artistsCount, songsCount);
 
             var config = new DataSetConfiguration
             {
