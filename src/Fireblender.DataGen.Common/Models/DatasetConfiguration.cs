@@ -3,7 +3,7 @@
     using System;
     using Fireblender.DataGen.Common.Enums;
 
-    public class DataSetConfiguration
+    public class DatasetConfiguration
     {
         public DateTime MinDate { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿namespace Fireblender.DataGen.ListeningHistory
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
     using Newtonsoft.Json;
@@ -9,47 +10,49 @@
     using Fireblender.DataGen.Common.Enums;
     using Fireblender.DataGen.Common.Interfaces;
     using Fireblender.DataGen.Common.Models;
-    using System.Collections.Generic;
+    using Fireblender.DataGen.ListeningHistory.Models;
 
     class Program
     {
-        static void Main(string[] args)
-        {
-            // TODO: better args handling, integrate System.CommandLine
-            Generate(
-                seed: 1337,
-                minDate: DateTime.Parse(args[0]),
-                maxDate: DateTime.Parse(args[1]),
-                usersCount: int.Parse(args[2]),
-                artistsCount: int.Parse(args[3]),
-                songsCount: int.Parse(args[4]),
-                size: int.Parse(args[5]),
-                outputDirectory: args[6]
-            );
-        }
-
-        static void Generate(
-            int seed,
+        /// <param name="outputDirectory">Location of generated dataset</param>
+        /// <param name="minDate">Minimum date in generated dataset</param>
+        /// <param name="maxDate">Maximum date in generated dataset</param>
+        /// <param name="usersCount">Numbers of users in generated dataset</param>
+        /// <param name="artistsCount">Numbers of artists in generated dataset</param>
+        /// <param name="songsCount">Numbers of songs in generated dataset (each song is mapped to single artist)</param>
+        /// <param name="size">Size of generarted data set (total number of song plays)</param>
+        /// <param name="sizeOverTime">Data distribution in generated dataset</param>
+        /// <param name="bufferingIntervalInSeconds">Buffering interval in seconds for generated data (mimics Kinesis Data Firehose behavior)</param>
+        /// <param name="bufferingSizeInMBs">Buffering size in MB for generated data (mimics Kinesis Data Firehose behavior)</param>
+        /// <param name="seed">Seed used to initialize random number generator</param>
+        static void Main(
+            string outputDirectory,
             DateTime minDate,
             DateTime maxDate,
             int usersCount,
             int artistsCount,
             int songsCount,
             int size,
-            string outputDirectory)
+            SizeOverTime sizeOverTime = SizeOverTime.Uniform,
+            int bufferingIntervalInSeconds = 300,
+            int bufferingSizeInMBs = 1,
+            int seed = 1337)
         {
-            var random = new Random(seed);
-            var dataGenerator = new ListeningHistoryGenerator(random, usersCount, artistsCount, songsCount);
-
-            var config = new DataSetConfiguration
+            var config = new ListeningHistoryDatasetConfiguration
             {
                 MinDate = minDate,
                 MaxDate = maxDate,
+                UsersCount = usersCount,
+                ArtistsCount = artistsCount,
+                SongsCount = songsCount,
                 Size = size,
-                SizeOverTime = SizeOverTime.Uniform,
-                BufferingIntervalInSeconds = 300,
-                BufferingSizeInMBs = 1,
+                SizeOverTime = sizeOverTime,
+                BufferingIntervalInSeconds = bufferingIntervalInSeconds,
+                BufferingSizeInMBs = bufferingSizeInMBs,
             };
+
+            var random = new Random(seed);
+            var dataGenerator = new ListeningHistoryGenerator(random, config);
 
             Generate(random, config, dataGenerator, outputDirectory);
         }
@@ -57,7 +60,7 @@
         // TODO: move implementation to dedicated service class
         static void Generate<TDataPoint>(
             Random random,
-            DataSetConfiguration config,
+            DatasetConfiguration config,
             IDataGenerator<TDataPoint> dataGenerator,
             string outputDirectory) where TDataPoint : IDataPoint
         {

@@ -14,15 +14,13 @@ namespace Fireblender.DataGen.ListeningHistory.Services
 
         public ListeningHistoryGenerator(
             Random random,
-            int usersCount,
-            int artistsCount,
-            int songsCount)
+            ListeningHistoryDatasetConfiguration config)
         {
-            this.users = Enumerable.Range(0, usersCount).Select(u => random.NextGuid()).ToArray();
+            this.users = Enumerable.Range(0, config.UsersCount).Select(u => random.NextGuid()).ToArray();
 
-            var artists = Enumerable.Range(0, artistsCount).Select(a => random.NextGuid()).ToArray();
+            var artists = Enumerable.Range(0, config.ArtistsCount).Select(a => random.NextGuid()).ToArray();
 
-            this.songs = Enumerable.Range(0, songsCount)
+            this.songs = Enumerable.Range(0, config.SongsCount)
                 .Select(s => (random.NextGuid(), random.Pick(artists)))
                 .ToArray();
         }
