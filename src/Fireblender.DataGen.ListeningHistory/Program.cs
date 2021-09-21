@@ -14,6 +14,7 @@
 
     class Program
     {
+        /// <summary>Listening history dataset generator.</summary>
         /// <param name="outputDirectory">Location of generated dataset</param>
         /// <param name="minDate">Minimum date in generated dataset</param>
         /// <param name="maxDate">Maximum date in generated dataset</param>

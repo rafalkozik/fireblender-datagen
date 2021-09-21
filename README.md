@@ -20,22 +20,25 @@ Random dataset of song listening history, example:
 $ dotnet run --project .\src\Fireblender.DataGen.ListeningHistory\Fireblender.DataGen.ListeningHistory.csproj -- --help
 
 Fireblender.DataGen.ListeningHistory
+  Listening history dataset generator.
 
 Usage:
   Fireblender.DataGen.ListeningHistory [options]
 
 Options:
-  --output-directory <output-directory>                            outputDirectory
-  --min-date <min-date>                                            minDate
-  --max-date <max-date>                                            maxDate
-  --users-count <users-count>                                      usersCount
-  --artists-count <artists-count>                                  artistsCount
-  --songs-count <songs-count>                                      songsCount
-  --size <size>                                                    size
-  --size-over-time <Uniform|Unknown>                               sizeOverTime [default: Uniform]
-  --buffering-interval-in-seconds <buffering-interval-in-seconds>  bufferingIntervalInSeconds [default: 300]
-  --buffering-size-in-mbs <buffering-size-in-mbs>                  bufferingSizeInMBs [default: 1]
-  --seed <seed>                                                    seed [default: 1337]
+  --output-directory <output-directory>                            Location of generated dataset
+  --min-date <min-date>                                            Minimum date in generated dataset
+  --max-date <max-date>                                            Maximum date in generated dataset
+  --users-count <users-count>                                      Numbers of users in generated dataset
+  --artists-count <artists-count>                                  Numbers of artists in generated dataset
+  --songs-count <songs-count>                                      Numbers of songs in generated dataset (each song is mapped to single artist)
+  --size <size>                                                    Size of generarted data set (total number of song plays)
+  --size-over-time <Uniform|Unknown>                               Data distribution in generated dataset [default: Uniform]
+  --buffering-interval-in-seconds <buffering-interval-in-seconds>  Buffering interval in seconds for generated data (mimics Kinesis Data Firehose behavior) [default: 300]
+  --buffering-size-in-mbs <buffering-size-in-mbs>                  Buffering size in MB for generated data (mimics Kinesis Data Firehose behavior) [default: 1]
+  --seed <seed>                                                    Seed used to initialize random number generator [default: 1337]
+  --version                                                        Show version information
+  -?, -h, --help                                                   Show help and usage information
 ```
 
 ### Sample usage
