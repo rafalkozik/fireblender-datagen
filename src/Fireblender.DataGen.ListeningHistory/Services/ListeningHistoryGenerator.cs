@@ -7,7 +7,7 @@ namespace Fireblender.DataGen.ListeningHistory.Services
     using Fireblender.DataGen.Common.Interfaces;
     using Fireblender.DataGen.ListeningHistory.Models;
 
-    class ListeningHistoryGenerator : IDataGenerator<ListeningHistoryDataPoint>
+    internal class ListeningHistoryGenerator : IDataGenerator<ListeningHistoryDataPoint>
     {
         private readonly Guid[] users;
         private readonly (Guid songId, Guid artistId)[] songs;

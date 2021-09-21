@@ -3,7 +3,7 @@
     using System;
     using Fireblender.DataGen.Common.Interfaces;
 
-    public class ListeningHistoryDataPoint : IDataPoint
+    internal class ListeningHistoryDataPoint : IDataPoint
     {
         public Guid Id { get; set; }
 

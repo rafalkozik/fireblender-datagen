@@ -2,7 +2,7 @@
 {
     using Fireblender.DataGen.Common.Models;
 
-    public class ListeningHistoryDatasetConfiguration : DatasetConfiguration
+    internal class ListeningHistoryDatasetConfiguration : DatasetConfiguration
     {
         public int UsersCount { get; set; }
 
