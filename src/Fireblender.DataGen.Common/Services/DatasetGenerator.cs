@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.IO.Compression;
-    using Newtonsoft.Json;
+    using System.Text.Json;
     using Fireblender.DataGen.Common.Interfaces;
     using Fireblender.DataGen.Common.Models;
 
@@ -68,7 +68,7 @@
                         FlushBuffer();
                     }
 
-                    var json = JsonConvert.SerializeObject(dataPoint);
+                    var json = JsonSerializer.Serialize(dataPoint);
 
                     buffer.Add((dataPoint, json));
                     bufferSize += json.Length;
