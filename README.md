@@ -37,6 +37,7 @@ Options:
   --buffering-interval-in-seconds <buffering-interval-in-seconds>  Buffering interval in seconds for generated data (mimics Kinesis Data Firehose behavior) [default: 300]
   --buffering-size-in-mbs <buffering-size-in-mbs>                  Buffering size in MB for generated data (mimics Kinesis Data Firehose behavior) [default: 1]
   --seed <seed>                                                    Seed used to initialize random number generator [default: 1337]
+  --verbose                                                        Use verbose logging [default: False]
   --version                                                        Show version information
   -?, -h, --help                                                   Show help and usage information
 ```
@@ -44,5 +45,6 @@ Options:
 ### Sample usage
 
 ```
-$ dotnet run --project .\src\Fireblender.DataGen.ListeningHistory\Fireblender.DataGen.ListeningHistory.csproj -- --min-date 2021-05-13 --max-date 2021-08-22 --users-count 100 --artists-count 10 --songs-count 50 --size 10000 --output-directory <output_directory>
+$ dotnet build .\src\Fireblender.DataGen.ListeningHistory\Fireblender.DataGen.ListeningHistory.csproj --configuration Release
+$ dotnet exec .\src\Fireblender.DataGen.ListeningHistory\bin\Release\netcoreapp3.1\Fireblender.DataGen.ListeningHistory.dll --min-date 2021-05-13 --max-date 2021-08-22 --users-count 100 --artists-count 10 --songs-count 50 --size 10000 --output-directory <output_directory>
 ```

@@ -5,6 +5,7 @@
     using Fireblender.DataGen.Common.Services;
     using Fireblender.DataGen.Common.Enums;
     using Fireblender.DataGen.ListeningHistory.Models;
+    using System.Diagnostics;
 
     class Program
     {
@@ -20,6 +21,7 @@
         /// <param name="bufferingIntervalInSeconds">Buffering interval in seconds for generated data (mimics Kinesis Data Firehose behavior)</param>
         /// <param name="bufferingSizeInMBs">Buffering size in MB for generated data (mimics Kinesis Data Firehose behavior)</param>
         /// <param name="seed">Seed used to initialize random number generator</param>
+        /// <param name="verbose">Use verbose logging</param>
         static void Main(
             string outputDirectory,
             DateTime minDate,
@@ -31,7 +33,8 @@
             SizeOverTime sizeOverTime = SizeOverTime.Uniform,
             int bufferingIntervalInSeconds = 300,
             int bufferingSizeInMBs = 1,
-            int seed = 1337)
+            int seed = 1337,
+            bool verbose = false)
         {
             var config = new ListeningHistoryDatasetConfiguration
             {
@@ -50,7 +53,18 @@
             var dataGenerator = new ListeningHistoryGenerator(random, config);
             var datasetGenerator = new DatasetGenerator<ListeningHistoryDataPoint>();
 
+            var stopwatch = new Stopwatch();
+
+            stopwatch.Start();
+
             datasetGenerator.Generate(random, config, dataGenerator, outputDirectory);
+
+            stopwatch.Stop();
+
+            if (verbose)
+            {
+                Console.WriteLine($"Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
+            }
         }
     }
 }
