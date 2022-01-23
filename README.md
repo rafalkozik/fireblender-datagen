@@ -17,7 +17,8 @@ Random dataset of song listening history, example:
 
 ### Parameters
 ```
-$ dotnet run --project .\src\Fireblender.DataGen.ListeningHistory\Fireblender.DataGen.ListeningHistory.csproj -- --help
+$ dotnet build .\src\Fireblender.DataGen.ListeningHistory\Fireblender.DataGen.ListeningHistory.csproj --configuration Release
+$ dotnet exec .\src\Fireblender.DataGen.ListeningHistory\bin\Release\net6.0\Fireblender.DataGen.ListeningHistory.dll --help
 
 Fireblender.DataGen.ListeningHistory
   Listening history dataset generator.
@@ -46,5 +47,5 @@ Options:
 
 ```
 $ dotnet build .\src\Fireblender.DataGen.ListeningHistory\Fireblender.DataGen.ListeningHistory.csproj --configuration Release
-$ dotnet exec .\src\Fireblender.DataGen.ListeningHistory\bin\Release\netcoreapp3.1\Fireblender.DataGen.ListeningHistory.dll --min-date 2021-05-13 --max-date 2021-08-22 --users-count 100 --artists-count 10 --songs-count 50 --size 10000 --output-directory <output_directory>
+$ dotnet exec .\src\Fireblender.DataGen.ListeningHistory\bin\Release\net6.0\Fireblender.DataGen.ListeningHistory.dll --min-date 2021-05-13 --max-date 2021-08-22 --users-count 100 --artists-count 10 --songs-count 50 --size 10000 --output-directory <output_directory>
 ```
